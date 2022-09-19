@@ -20,16 +20,26 @@ export class LessonService {
   }
 
   async createLesson(createLesonInput: CreateLessonInput): Promise<Lesson> {
-    const { name, startDate, endDate } = createLesonInput;
+    const { name, startDate, endDate, students } = createLesonInput;
     const lesson = this.lessonRepository.create({
       id: uuidv4(),
       name,
       startDate,
       endDate,
+      students,
     });
 
     this.lessonRepository.save(lesson);
 
     return lesson;
+  }
+
+  async assignStudentToLesson(
+    lessonId: string,
+    studentIds: string[],
+  ): Promise<Lesson> {
+    const lesson = await this.lessonRepository.findOneBy({ id: lessonId });
+    lesson.students = [...lesson.students, ...studentIds];
+    return this.lessonRepository.save(lesson);
   }
 }
